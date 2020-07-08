@@ -8,7 +8,7 @@ import numpy as np
 from physical_operators import *
 from exact_diagonalization import ExactDiagonalization
 
-class TestDensity:
+class TrialDensity:
     def __init__(self,N):
         if(N==2):
             rho_temp = np.kron(np.array([[1,0],[1,0]],dtype=np.complex128),np.eye(2,dtype=np.complex128))
@@ -51,7 +51,7 @@ def test_thermal_calc(set_matrix):
     dt = np.float64(0.01)
     h = pytest.h
     N = pytest.N
-    test_density = TestDensity(N)
+    test_density = TrialDensity(N)
     test_density = pytest.exact_diagoanlization(test_density,-0.5j)
     test_density = pytest.exact_diagoanlization(test_density,-0.5j)
     density_matrix_exact = np.zeros((np.power(2,N),np.power(2,N)),dtype=np.complex128)
@@ -87,7 +87,7 @@ def test_real_time_develop_check_private_values(set_hamiltonian):
     init_D = pytest.exact_diagoanlization.D.copy()
     init_P = pytest.exact_diagoanlization.P.copy()
     assert pytest.exact_diagoanlization.N == pytest.N
-    test_density = TestDensity(N)
+    test_density = TrialDensity(N)
     test_density = pytest.exact_diagoanlization(test_density,t=100)
     np.testing.assert_allclose(pytest.exact_diagoanlization.D, init_D) 
     np.testing.assert_allclose(pytest.exact_diagoanlization.P, init_P) 
@@ -95,13 +95,13 @@ def test_real_time_develop_check_private_values(set_hamiltonian):
 def test_real_time_develop_energy_conservation(set_hamiltonian):
     h = pytest.h
     N = pytest.N
-    test_density = TestDensity(N)
+    test_density = TrialDensity(N)
     for t in [10,100,1000]:
         E_init = test_density.total_energy(pytest.H_exact)
         Sz_total_init = np.trace(np.dot(pytest.Sz_total,test_density.density_matrix))
         Sx_part_init = np.trace(np.dot(pytest.Sx_part,test_density.density_matrix))
         Sz_part_init = np.trace(np.dot(pytest.Sz_part,test_density.density_matrix))
-        test_density = pytest.exact_diagoanlization(TestDensity(N),t)
+        test_density = pytest.exact_diagoanlization(TrialDensity(N),t)
         E_end = test_density.total_energy(pytest.H_exact)
         Sz_total_end = np.trace(np.dot(pytest.Sz_total,test_density.density_matrix))
         Sx_part_end = np.trace(np.dot(pytest.Sx_part,test_density.density_matrix))

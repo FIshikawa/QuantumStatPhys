@@ -7,7 +7,7 @@ from physical_operators import *
 import numpy as np
 from runge_kutta_4th import RungeKutta4th
 
-class TestDensity:
+class TrialDensity:
     def __init__(self,N):
         rho_temp = np.kron(np.array([[1,0],[1,0]],dtype=np.complex128),np.array([[0,1],[0,1]],dtype=np.complex128))
         rho_temp = rho_temp / np.trace(rho_temp)
@@ -47,7 +47,7 @@ def test_real_calc(set_hamiltonian):
     N_time = 1000
     h = pytest.h
     N = pytest.N
-    test_density = TestDensity(N)
+    test_density = TrialDensity(N)
     E_init = test_density.total_energy(pytest.H_exact)
     Sz_total_init = np.trace(np.dot(pytest.Sz_total,test_density.density_matrix))
     Sx_part_init = np.trace(np.dot(pytest.Sx_part,test_density.density_matrix))

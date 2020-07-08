@@ -1,6 +1,8 @@
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'include'))
+include_file = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)), 'include')
+sys.path.append(include_file)
 import datetime
 import collections
 import numpy as np
@@ -16,12 +18,15 @@ if __name__ == '__main__':
 
     experimental_condi = []
     experimental_condi.append('Observe Relaxation : ED : XXZ-Heisenberg model')
-    experimental_condi.append('Hamiltonian : - J ( Sx Sx + Sy Sy + V Sz Sz) - h Sz')
+    experimental_condi.append('Hamiltonian : '\
+                                    '- J ( Sx Sx + Sy Sy + V Sz Sz) - h Sz')
 
     param_dict = collections.OrderedDict()
     param_dict['result_dir']='test/'
-    param_dict['result_thermalize'] = param_dict['result_dir'] + 'result_thermalize.dat' 
-    param_dict['result_timedev'] = param_dict['result_dir'] + 'result_timedev.dat' 
+    param_dict['result_thermalize'] = \
+                            param_dict['result_dir'] + 'result_thermalize.dat' 
+    param_dict['result_timedev'] = \
+                            param_dict['result_dir'] + 'result_timedev.dat' 
     param_dict['N']=3
     param_dict['J']=1.0
     param_dict['h']=0.5
@@ -86,23 +91,32 @@ if __name__ == '__main__':
         param_dict['engine'] = True if('True' in str(argv[counter])) else False
     counter += 1
     if(argc > counter):
-        param_dict['relaxation'] = True if('True' in str(argv[counter])) else False
+        param_dict['relaxation'] = \
+                True if('True' in str(argv[counter])) else False
     counter += 1
     if(argc > counter):
-        param_dict['discrete'] = True if('True' in str(argv[counter])) else False
+        param_dict['discrete'] = \
+                True if('True' in str(argv[counter])) else False
     counter += 1
     if(argc > counter):
-        param_dict['test_mode'] = True if('True' in str(argv[counter])) else False
+        param_dict['test_mode'] = \
+                True if('True' in str(argv[counter])) else False
     counter += 1
     if(argc > counter):
         param_dict['integrator'] = str(argv[counter]) 
 
-    if(not param_dict['integrator'] in ['EulerMethod','RungeKutta4th','RungeKutta3rd','RungeKutta2nd']):
-        raise KeyError('{} is not expected (EulerMethod, RungeKutta2nd, RungeKutta3rd, RungeKutta4th'.format(param_dict['integrator']))
+    integrators_name_list = ['EulerMethod','RungeKutta4th',
+                             'RungeKutta3rd','RungeKutta2nd']
+    if(not param_dict['integrator'] in integrators_name_list):
+        raise KeyError('{} is not expected '\
+                '(EulerMethod, RungeKutta2nd, RungeKutta3rd, RungeKutta4th'
+                .format(param_dict['integrator']))
 
     param_dict['dt'] = param_dict['t'] / float(param_dict['N_time'])
-    param_dict['result_thermalize'] = param_dict['result_dir'] + 'result_thermalize.dat' 
-    param_dict['result_timedev'] = param_dict['result_dir'] + 'result_timedev.dat' 
+    param_dict['result_thermalize'] = \
+                       param_dict['result_dir'] + 'result_thermalize.dat' 
+    param_dict['result_timedev'] = \
+                       param_dict['result_dir'] + 'result_timedev.dat' 
     param_dict['result_band'] = param_dict['result_dir'] + 'result_band.dat' 
     param_dict['N_thermalize']= int( 1 / param_dict['T'] * param_dict['dt'])
 
@@ -112,7 +126,8 @@ if __name__ == '__main__':
         os.remove(log_file) 
     loger = LogManager(log_file,stdout=True)
 
-    start_time = "Experiment start : " + datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S') + "\n"
+    start_time = "Experiment start : " \
+                 + datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S') + "\n"
     loger.log_write(start_time)
 
     loger.log_write('[Experiment Conditions]')
@@ -143,10 +158,21 @@ if __name__ == '__main__':
         hamiltonian_thermalize = Hamiltonian(N=N, tagged=tagged)
     else:
         hamiltonian_thermalize = Hamiltonian(N=N, tagged=tagged)
-        hamiltonian_thermalize.add_H_1body(Sz, coef=external_force(0),position=tagged)
-        hamiltonian_thermalize.add_H_2body(Sx, Sx, coef=-J_int,position=[tagged-1,tagged])
-        hamiltonian_thermalize.add_H_2body(Sy, Sy, coef=-J_int,position=[tagged-1,tagged])
-        hamiltonian_thermalize.add_H_2body(Sz, Sz, coef=-J_int*V,position=[tagged-1,tagged])
+        hamiltonian_thermalize.add_H_1body(Sz, 
+                                           coef=external_force(0),
+                                           position=tagged)
+        hamiltonian_thermalize.add_H_2body(Sx, 
+                                           Sx, 
+                                           coef=-J_int,
+                                           position=[tagged-1,tagged])
+        hamiltonian_thermalize.add_H_2body(Sy, 
+                                           Sy, 
+                                           coef=-J_int,
+                                           position=[tagged-1,tagged])
+        hamiltonian_thermalize.add_H_2body(Sz, 
+                                           Sz, 
+                                           coef=-J_int*V,
+                                           position=[tagged-1,tagged])
     hamiltonian_thermalize.add_H_1body(Sz, coef=-h)
     hamiltonian_thermalize.add_H_2body(Sx, Sx, coef=-J)
     hamiltonian_thermalize.add_H_2body(Sy, Sy, coef=-J)
@@ -157,18 +183,35 @@ if __name__ == '__main__':
     hamiltonian_total.add_H_2body(Sx, Sx, coef=-J)
     hamiltonian_total.add_H_2body(Sy, Sy, coef=-J)
     hamiltonian_total.add_H_2body(Sz, Sz, coef=-J*V)
-    hamiltonian_total.add_H_2body(Sx, Sx, coef=-J_int,position=[tagged-1,tagged])
-    hamiltonian_total.add_H_2body(Sy, Sy, coef=-J_int,position=[tagged-1,tagged])
-    hamiltonian_total.add_H_2body(Sz, Sz, coef=-J_int*V,position=[tagged-1,tagged])
+    hamiltonian_total.add_H_2body(Sx, 
+                                  Sx, 
+                                  coef=-J_int,
+                                  position=[tagged-1,tagged])
+    hamiltonian_total.add_H_2body(Sy, 
+                                  Sy, 
+                                  coef=-J_int,
+                                  position=[tagged-1,tagged])
+    hamiltonian_total.add_H_2body(Sz, 
+                                  Sz, 
+                                  coef=-J_int*V,
+                                  position=[tagged-1,tagged])
     if(engine):
         if(not discrete):
             raise ValueError('must use discrete time develop in engine mode')
-        hamiltonian_total.add_H_1body(Sz, coef=external_force,time_depend=True,position=tagged)
+        hamiltonian_total.add_H_1body(Sz, 
+                                      coef=external_force,
+                                      time_depend=True,
+                                      position=tagged)
     else:
-        hamiltonian_total.add_H_1body(Sz, coef=external_force(0),position=tagged)
+        hamiltonian_total.add_H_1body(Sz, 
+                                      coef=external_force(0),
+                                      position=tagged)
 
     # set density matrix
-    rho = DensityMatrix(N=N,tagged=tagged,relaxation=relaxation,Sx_init=Sx_init)
+    rho = DensityMatrix(N=N,
+                        tagged=tagged,
+                        relaxation=relaxation,
+                        Sx_init=Sx_init)
 
     experiment(
                 param_dict,
@@ -178,5 +221,6 @@ if __name__ == '__main__':
                 hamiltonian_total
               )
 
-    end_time = "Experiment finish : " + datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S') + "\n" 
+    end_time = "Experiment finish : " + \
+                datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S') + "\n" 
     loger.log_write(end_time)

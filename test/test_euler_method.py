@@ -1,15 +1,20 @@
 import pytest
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'include'))
+include_file = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)), 'include')
+sys.path.append(include_file)
 
 from physical_operators import *
 import numpy as np
 from euler_method import EulerMethod
 
-class TestDensity:
+class TrialDensity:
     def __init__(self,N):
-        rho_temp = np.kron(np.array([[1,0],[1,0]],dtype=np.complex128),np.array([[0,1],[0,1]],dtype=np.complex128))
+        rho_temp = np.kron(
+                           np.array([[1,0],[1,0]],dtype=np.complex128),
+                           np.array([[0,1],[0,1]],dtype=np.complex128)
+                           )
         rho_temp = rho_temp / np.trace(rho_temp)
         self.density_matrix = rho_temp
 
@@ -33,7 +38,8 @@ def set_hamiltonian():
     pytest.integrator = EulerMethod(N, hamiltonian=(lambda t : H_exact))
     pytest.h = h
     pytest.N = N
-    pytest.Sz_total = np.kron(Sz,np.eye(2,dtype=np.complex128)) + np.kron(np.eye(2,dtype=np.complex128),Sz)
+    pytest.Sz_total = np.kron(Sz,np.eye(2,dtype=np.complex128)) \
+                       + np.kron(np.eye(2,dtype=np.complex128),Sz)
     pytest.Sx_part = np.kron(Sx,np.eye(2,dtype=np.complex128))
     pytest.Sz_part = np.kron(Sz,np.eye(2,dtype=np.complex128))
     yield set_hamiltonian
@@ -47,7 +53,7 @@ def test_real_calc(set_hamiltonian):
     N_time = 1000
     h = pytest.h
     N = pytest.N
-    test_density = TestDensity(N)
+    test_density = TrialDensity(N)
     E_init = test_density.total_energy(pytest.H_exact)
     Sz_total_init = np.trace(np.dot(pytest.Sz_total,test_density.density_matrix))
     Sx_part_init = np.trace(np.dot(pytest.Sx_part,test_density.density_matrix))

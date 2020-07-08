@@ -7,7 +7,7 @@ from physical_operators import *
 import numpy as np
 from runge_kutta_3rd import RungeKutta3rd
 
-class TestDensity:
+class TrialDensity:
     def __init__(self,N):
         rho_temp = np.zeros((np.power(2,N),np.power(2,N)),dtype=np.complex64)
         rho_temp[0][0] = 1.0
@@ -43,7 +43,7 @@ def test_real_calc(set_hamiltonian):
     N_time = 1000
     h = pytest.h
     N = pytest.N
-    test_density = TestDensity(N)
+    test_density = TrialDensity(N)
     E_init = test_density.total_energy(pytest.H_exact)
     density_matrix_init = test_density.density_matrix.copy() 
     for i in range(N_time):
