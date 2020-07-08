@@ -1,10 +1,10 @@
 import sys
 import os
+import argparse
 include_file = os.path.join(
         os.path.dirname(os.path.dirname(__file__)), 'include')
 sys.path.append(include_file)
 import datetime
-import collections
 import numpy as np
 from tools import LogManager
 from open_system_experiments import experiment 
@@ -13,97 +13,48 @@ from hamiltonian import Hamiltonian
 from density_matrix import DensityMatrix
 
 if __name__ == '__main__':
-    argv = sys.argv
-    argc = len(argv)
-
     experimental_condi = []
     experimental_condi.append('Observe Relaxation : ED : XXZ-Heisenberg model')
     experimental_condi.append('Hamiltonian : '\
-                                    '- J ( Sx Sx + Sy Sy + V Sz Sz) - h Sz')
+                                    '- J ( Sx Sx + Sy Sy + V Sz Sz) - g Sz')
+    parser = argparse.ArgumentParser(description=experimental_condi[0])
 
-    param_dict = collections.OrderedDict()
-    param_dict['result_dir']='test/'
-    param_dict['result_thermalize'] = \
-                            param_dict['result_dir'] + 'result_thermalize.dat' 
-    param_dict['result_timedev'] = \
-                            param_dict['result_dir'] + 'result_timedev.dat' 
-    param_dict['N']=3
-    param_dict['J']=1.0
-    param_dict['h']=0.5
-    param_dict['V']=1.0
-    param_dict['J_int']=1.0
-    param_dict['h_external']=0.5
-    param_dict['Sx_init']=1.0
-    param_dict['dt']=1.0E-3
-    param_dict['t']=1*param_dict['dt']
-    param_dict['N_time']=1
-    param_dict['N_measure']=1
-    param_dict['T']= 1 / param_dict['dt']#1.0
-    param_dict['N_thermalize']= int( 1 / param_dict['T'] * param_dict['dt'])
-    param_dict['tagged'] = (param_dict['N']-1)//2
-    param_dict['engine'] = False
-    param_dict['relaxation'] = False
-    param_dict['test_mode'] = False
-    param_dict['discrete'] = False
-    param_dict['integrator'] = 'EulerMethod'
+    parser.add_argument('--result_dir',required=True,action='store',type=str,
+                        help='Result directory',default='./test/')
+    parser.add_argument('--N',required=True,action='store',type=int,
+                        help='System size',default=3)
+    parser.add_argument('--J',required=True,action='store',type=float,
+                        help='Interaction strength',default=1.0)
+    parser.add_argument('--g',required=True,action='store',type=float,
+                        help='Static external field strength',default=0.5)
+    parser.add_argument('--V',required=True,action='store',type=float,
+                        help='Anisotropy field strength',default=1.0)
+    parser.add_argument('--J_int',required=True,action='store',type=float,
+                        help='System-bath coupling',default=1.0)
+    parser.add_argument('--g_external',required=True,action='store',type=float,
+                        help='Time depend external field strength',default=0.5)
+    parser.add_argument('--Sx_init',required=True,action='store',type=float,
+                        help='Initial state of system',default=1.0)
+    parser.add_argument('--N_time',required=True,action='store',type=int,
+                        help='Number of time step',default=0.5)
+    parser.add_argument('--tagged',required=True,action='store',type=int,
+                        help='Site of tagged spin',defalut=1)
+    parser.add_argument('--engine',required=True,action='store',type=strtobool,
+                        help='Flag of heat engine calc',default=False)
+    parser.add_argument('--relaxation',required=True,
+                        action='store',type=strtobool,
+                        help='Flag of relaxation procedure',default=False)
+    parser.add_argument('--discrete',required=True,
+                        action='store',type=strtobool,
+                        help='Flag of discrete time development',default=False)
+    parser.add_argument('--test_mode',required=True,
+                        action='store',type=strtobool,
+                        help='Flag of test mode',default=False)
+    parser.add_argument('--integrator',required=True,action='store',type=str,
+                        help='Integrator for time development',
+                        default='EulerMethod')
 
-    counter = 1
-    if(argc > counter): 
-        param_dict['result_dir'] = str(argv[counter])
-    counter += 1
-    if(argc > counter): 
-        param_dict['N'] = int(argv[counter])
-    counter += 1
-    if(argc > counter): 
-        param_dict['J'] = float(argv[counter])
-    counter += 1
-    if(argc > counter):
-        param_dict['h'] = float(argv[counter])
-    counter += 1
-    if(argc > counter):
-        param_dict['V'] = float(argv[counter])
-    counter += 1
-    if(argc > counter): 
-        param_dict['J_int'] = float(argv[counter])
-    counter += 1
-    if(argc > counter):
-        param_dict['h_external'] = float(argv[counter])
-    counter += 1
-    if(argc > counter):
-        param_dict['Sx_init'] = float(argv[counter])
-    counter += 1
-    if(argc > counter):
-        param_dict['t'] = float(argv[counter])
-    counter += 1
-    if(argc > counter):
-        param_dict['N_time'] = int(argv[counter])
-    counter += 1
-    if(argc > counter):
-        param_dict['N_measure'] = int(argv[counter])
-    counter += 1
-    if(argc > counter):
-        param_dict['T'] = float(argv[counter])
-    counter += 1
-    if(argc > counter):
-        param_dict['tagged'] = int(argv[counter])
-    counter += 1
-    if(argc > counter):
-        param_dict['engine'] = True if('True' in str(argv[counter])) else False
-    counter += 1
-    if(argc > counter):
-        param_dict['relaxation'] = \
-                True if('True' in str(argv[counter])) else False
-    counter += 1
-    if(argc > counter):
-        param_dict['discrete'] = \
-                True if('True' in str(argv[counter])) else False
-    counter += 1
-    if(argc > counter):
-        param_dict['test_mode'] = \
-                True if('True' in str(argv[counter])) else False
-    counter += 1
-    if(argc > counter):
-        param_dict['integrator'] = str(argv[counter]) 
+    param_dict = vars(parser.parse_args())
 
     integrators_name_list = ['EulerMethod','RungeKutta4th',
                              'RungeKutta3rd','RungeKutta2nd']
@@ -141,9 +92,9 @@ if __name__ == '__main__':
     tagged = int(param_dict['tagged'])
     N = param_dict['N']
     J = param_dict['J']
-    h = param_dict['h']
+    g = param_dict['g']
     V = param_dict['V']
-    h_external = param_dict['h_external'] 
+    g_external = param_dict['g_external'] 
     J_int = param_dict['J_int'] 
     Sx_init = param_dict['Sx_init'] 
     relaxation = param_dict['relaxation']
@@ -151,7 +102,7 @@ if __name__ == '__main__':
     discrete = param_dict['discrete']
 
     # set external force 
-    external_force = lambda t : -h_external*np.cos(np.pi*t)
+    external_force = lambda t : -g_external*np.cos(np.pi*t)
 
     # set hamiltonian
     if(relaxation):
@@ -173,13 +124,13 @@ if __name__ == '__main__':
                                            Sz, 
                                            coef=-J_int*V,
                                            position=[tagged-1,tagged])
-    hamiltonian_thermalize.add_H_1body(Sz, coef=-h)
+    hamiltonian_thermalize.add_H_1body(Sz, coef=-g)
     hamiltonian_thermalize.add_H_2body(Sx, Sx, coef=-J)
     hamiltonian_thermalize.add_H_2body(Sy, Sy, coef=-J)
     hamiltonian_thermalize.add_H_2body(Sz, Sz, coef=-J*V)
 
     hamiltonian_total = Hamiltonian(N=N, tagged=tagged)
-    hamiltonian_total.add_H_1body(Sz, coef=-h)
+    hamiltonian_total.add_H_1body(Sz, coef=-g)
     hamiltonian_total.add_H_2body(Sx, Sx, coef=-J)
     hamiltonian_total.add_H_2body(Sy, Sy, coef=-J)
     hamiltonian_total.add_H_2body(Sz, Sz, coef=-J*V)

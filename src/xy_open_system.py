@@ -66,10 +66,6 @@ if __name__ == '__main__':
                 '(EulerMethod, RungeKutta2nd, RungeKutta3rd, RungeKutta4th'
                 .format(param_dict['integrator']))
 
-    param_dict['result_thermalize'] = \
-                            param_dict['result_dir'] + 'result_thermalize.dat' 
-    param_dict['result_timedev'] = \
-                            param_dict['result_dir'] + 'result_timedev.dat' 
     param_dict['dt'] = param_dict['t'] / float(param_dict['N_time'])
     param_dict['result_thermalize'] = \
                        param_dict['result_dir'] + 'result_thermalize.dat' 
