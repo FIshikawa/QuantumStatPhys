@@ -35,21 +35,28 @@ if __name__ == '__main__':
                         help='Time depend external field strength',default=0.5)
     parser.add_argument('--Sx_init',required=True,action='store',type=float,
                         help='Initial state of system',default=1.0)
+    parser.add_argument('--t',required=True,action='store',type=float,
+                        help='time for development',default=1.0)
     parser.add_argument('--N_time',required=True,action='store',type=int,
-                        help='Number of time step',default=0.5)
+                        help='Number of time step',default=10)
+    parser.add_argument('--T',required=True,action='store',type=float,
+                        help='Temperture of Bath',default=10)
+    parser.add_argument('--N_measure',required=True,action='store',type=int,
+                        help='Number of measure step',default=1)
     parser.add_argument('--tagged',required=True,action='store',type=int,
-                        help='Site of tagged spin',defalut=1)
-    parser.add_argument('--engine',required=True,action='store',type=strtobool,
-                        help='Flag of heat engine calc',default=False)
+                        help='Site of tagged spin',default=1)
+    parser.add_argument('--engine',required=True,action='store',type=str,
+                        help='Flag of heat engine calc',default='False')
     parser.add_argument('--relaxation',required=True,
-                        action='store',type=strtobool,
-                        help='Flag of relaxation procedure',default=False)
+                        action='store',type=str,
+                        help='Flag of whole system relaxation',default='False')
     parser.add_argument('--discrete',required=True,
-                        action='store',type=strtobool,
-                        help='Flag of discrete time development',default=False)
+                        action='store',type=str,
+                        help='Flag of discrete time development',
+                        default='False')
     parser.add_argument('--test_mode',required=True,
-                        action='store',type=strtobool,
-                        help='Flag of test mode',default=False)
+                        action='store',type=str,
+                        help='Flag of test mode',default='False')
     parser.add_argument('--integrator',required=True,action='store',type=str,
                         help='Integrator for time development',
                         default='EulerMethod')
@@ -69,9 +76,13 @@ if __name__ == '__main__':
     param_dict['result_timedev'] = \
                        param_dict['result_dir'] + 'result_timedev.dat' 
     param_dict['result_band'] = param_dict['result_dir'] + 'result_band.dat' 
-    param_dict['N_thermalize']= int( 1 / param_dict['T'] * param_dict['dt'])
+    param_dict['N_thermalize']= int( 1 / param_dict['T'] / param_dict['dt'])
 
-    log_file = param_dict['result_dir'] + "condi.dat"
+    for flag in ['engine', 'relaxation', 'discrete', 'test_mode']:
+        param_dict[flag] = \
+                True if param_dict[flag] in ['True','true'] else False
+
+   log_file = param_dict['result_dir'] + "condi.dat"
 
     if(os.path.exists(log_file)):
         os.remove(log_file) 
