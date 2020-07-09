@@ -1,5 +1,6 @@
 class DensityMatrixMPO:
-  def __init__(self, N, D, T_delta, H_1body_kind=0, K_1body_kind=0, H_2body_kind=0, H_3body_kind=0):
+  def __init__(self, N, D, T_delta, 
+               H_1body_kind=0, K_1body_kind=0, H_2body_kind=0, H_3body_kind=0):
     self.T_delta = T_delta
     self.N = N
     self.D = D
@@ -10,7 +11,8 @@ class DensityMatrixMPO:
     self.K_1body_kind = K_1body_kind
 
     self.left_edge_vector = np.ones(self.D, dtype=np.complex64)/np.sqrt(self.D)
-    self.right_edge_vector = np.ones(self.D, dtype=np.complex64)/np.sqrt(self.D)
+    self.right_edge_vector = \
+                            np.ones(self.D, dtype=np.complex64)/np.sqrt(self.D)
 
     self.H_1body_kind = H_1body_kind
     self.H_2body_kind = H_2body_kind
@@ -18,24 +20,31 @@ class DensityMatrixMPO:
 
     if(H_1body_kind > 0):
       self.H_1body = np.zeros(((H_1body_kind, 2, 2)), dtype=np.complex64)
-      self.L_self = np.zeros(((((H_1body_kind, 2, 2, 2, 2)))), dtype=np.complex64)
-      self.L_thermo_self = np.zeros(((((H_1body_kind, 2, 2, 2, 2)))), dtype=np.complex64)
+      self.L_self = \
+              np.zeros(((((H_1body_kind, 2, 2, 2, 2)))), dtype=np.complex64)
+      self.L_thermo_self = \
+              np.zeros(((((H_1body_kind, 2, 2, 2, 2)))), dtype=np.complex64)
     if(H_2body_kind > 0):
       self.H_2body = np.zeros(((H_2body_kind, 4, 4)), dtype=np.complex64)
-      self.L_2body = np.zeros(((((H_2body_kind, 4, 4, 4, 4)))), dtype=np.complex64)
-      self.L_thermo_2body = np.zeros(((((H_2body_kind, 4, 4, 4, 4)))), dtype=np.complex64)
+      self.L_2body = \
+              np.zeros(((((H_2body_kind, 4, 4, 4, 4)))), dtype=np.complex64)
+      self.L_thermo_2body = \
+              np.zeros(((((H_2body_kind, 4, 4, 4, 4)))), dtype=np.complex64)
     if(H_3body_kind > 0):
-      self.L_3body = np.zeros(((((H_3body_kind, 8, 8, 8, 8)))), dtype=np.complex64)
+      self.L_3body = \
+              np.zeros(((((H_3body_kind, 8, 8, 8, 8)))), dtype=np.complex64)
       self.H_3body = np.zeros(((H_3body_kind, 8, 8)), dtype=np.complex64)
-      self.L_thermo_3body = np.zeros(((((H_3body_kind, 8, 8, 8, 8)))), dtype=np.complex64)
+      self.L_thermo_3body = \
+              np.zeros(((((H_3body_kind, 8, 8, 8, 8)))), dtype=np.complex64)
 
-
-    self.p_set = np.zeros(((((self.N, self.D, 2, 2, self.D)))), dtype=np.complex64)
+    self.p_set = np.zeros(((((self.N, self.D, 2, 2, self.D)))), 
+                         dtype=np.complex64)
 
   def __Liouvillian_self(self, index=-1):
     if(index<0):
       for loop_index in range(self.H_1body_kind):
-        self.L_self[loop_index] = np.zeros((((2, 2, 2, 2))), dtype=np.complex64)
+        self.L_self[loop_index] = np.zeros((((2, 2, 2, 2))), 
+                                  dtype=np.complex64)
         H_transpose = np.transpose(self.H_1body[loop_index])
         K_transpose = np.transpose(self.K_1body[0])
         K_conjugate = np.conjugate(self.K_1body[0])
@@ -47,12 +56,19 @@ class DensityMatrixMPO:
           for j in range(2):
             for k in range(2):
               for l in range(2):
-                self.L_self[loop_index][i][j][k][l] = -1j*(self.H_1body[loop_index][i][k]*I2[j][l] - I2[i][k]*H_transpose[j][l])
-                self.L_self[loop_index][i][j][k][l] = self.L_self[loop_index][i][j][k][l] + self.K_1body[0][i][k]*K_conjugate[j][l]
-                self.L_self[loop_index][i][j][k][l] = self.L_self[loop_index][i][j][k][l] - 0.5*K1[i][k]*I2[j][l] - 0.5*I2[i][k]*K2[j][l]
+                self.L_self[loop_index][i][j][k][l] = \
+                        -1j*(self.H_1body[loop_index][i][k]*I2[j][l] \
+                        - I2[i][k]*H_transpose[j][l])
+                self.L_self[loop_index][i][j][k][l] = \
+                        self.L_self[loop_index][i][j][k][l] \
+                        + self.K_1body[0][i][k]*K_conjugate[j][l]
+                self.L_self[loop_index][i][j][k][l] = \
+                        self.L_self[loop_index][i][j][k][l] \
+                        - 0.5*K1[i][k]*I2[j][l] - 0.5*I2[i][k]*K2[j][l]
     else:
       if(index >= self.H_1body_kind):
-        raise NameError("__Liouvillian_self : index %d must be smaller than %d" % (index, self.H_1body_kind))
+        raise ValueError('__Liouvillian_self : index %d '\
+                        'must be smaller than %d' % (index, self.H_1body_kind))
       self.L_self[index] = np.zeros((((2, 2, 2, 2))), dtype=np.complex64)
       H_transpose = np.transpose(self.H_1body[index])
       K_transpose = np.transpose(self.K_1body[0])
@@ -65,21 +81,31 @@ class DensityMatrixMPO:
         for j in range(2):
           for k in range(2):
             for l in range(2):
-              self.L_self[index][i][j][k][l] = -1j*(self.H_1body[index][i][k]*I2[j][l] - I2[i][k]*H_transpose[j][l])
-              self.L_self[index][i][j][k][l] = self.L_self[index][i][j][k][l] + self.K_1body[0][i][k]*K_conjugate[j][l]
-              self.L_self[index][i][j][k][l] = self.L_self[index][i][j][k][l] - 0.5*K1[i][k]*I2[j][l] - 0.5*I2[i][k]*K2[j][l]
+              self.L_self[index][i][j][k][l] = \
+                      -1j*(self.H_1body[index][i][k]*I2[j][l] \
+                      - I2[i][k]*H_transpose[j][l])
+              self.L_self[index][i][j][k][l] = \
+                      self.L_self[index][i][j][k][l] \
+                      + self.K_1body[0][i][k]*K_conjugate[j][l]
+              self.L_self[index][i][j][k][l] = \
+                      self.L_self[index][i][j][k][l] \
+                      - 0.5*K1[i][k]*I2[j][l] \
+                      - 0.5*I2[i][k]*K2[j][l]
 
   def __Liouvillian_2body(self, index=-1):
     if(index<0):
       for loop_index in range(self.H_2body_kind):
-        self.L_2body[loop_index] = np.zeros((((4, 4, 4, 4))), dtype=np.complex64)
+        self.L_2body[loop_index] = np.zeros((((4, 4, 4, 4))), \
+                                            dtype=np.complex64)
         H_transpose = np.transpose(self.H_2body[loop_index])
 
         for i in range(4):
           for j in range(4):
             for k in range(4):
               for l in range(4):
-                self.L_2body[loop_index][i][j][k][l] = -1j*(self.H_2body[loop_index][i][k]*I4[j][l] - I4[i][k]*H_transpose[j][l])
+                self.L_2body[loop_index][i][j][k][l] = \
+                        -1j*(self.H_2body[loop_index][i][k]*I4[j][l] \
+                             - I4[i][k]*H_transpose[j][l])
     else:
       if(index >= self.H_2body_kind):
         raise NameError("__Liouvillian_2body : index %d must be smaller than %d" % (index, self.H_2body_kind))
