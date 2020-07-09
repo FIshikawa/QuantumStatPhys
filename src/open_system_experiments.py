@@ -14,16 +14,40 @@ def physical_value_calc(t,file_name, density_matrix, hamiltonian_series):
     Sz_ave = density_matrix.calculate_expectation_of_1body(O=Sz)/np.float64(N)
     Sx_ave = density_matrix.calculate_expectation_of_1body(O=Sx)/np.float64(N)
     Sy_ave = density_matrix.calculate_expectation_of_1body(O=Sy)/np.float64(N)
-    SzSz_ave = density_matrix.calculate_expectation_of_2body(O1=Sz, O2=Sz, dist=1)/np.float64(N)
-    SxSx_ave = density_matrix.calculate_expectation_of_2body(O1=Sx, O2=Sx, dist=1)/np.float64(N)
-    SySy_ave = density_matrix.calculate_expectation_of_2body(O1=Sy, O2=Sy, dist=1)/np.float64(N)
+    SzSz_ave = density_matrix.calculate_expectation_of_2body(
+                                                          O1=Sz, 
+                                                          O2=Sz, 
+                                                          dist=1
+                                                          )/np.float64(N)
+    SxSx_ave = density_matrix.calculate_expectation_of_2body(
+                                                          O1=Sx, 
+                                                          O2=Sx, 
+                                                          dist=1
+                                                          )/np.float64(N)
+    SySy_ave = density_matrix.calculate_expectation_of_2body(
+                                                          O1=Sy, 
+                                                          O2=Sy, 
+                                                          dist=1
+                                                          )/np.float64(N)
 
-    Sz_tagged   = density_matrix.calculate_expectation_of_1body(O=Sz,index=tagged)
-    Sx_tagged   = density_matrix.calculate_expectation_of_1body(O=Sx,index=tagged)
-    Sy_tagged   = density_matrix.calculate_expectation_of_1body(O=Sy,index=tagged)
-    SzSz_tagged = density_matrix.calculate_expectation_of_2body(O1=Sz, O2=Sz, dist=1, index=tagged)
-    SxSx_tagged = density_matrix.calculate_expectation_of_2body(O1=Sx, O2=Sx, dist=1, index=tagged)
-    SySy_tagged = density_matrix.calculate_expectation_of_2body(O1=Sy, O2=Sy, dist=1, index=tagged)
+    Sz_tagged   = density_matrix.calculate_expectation_of_1body(O=Sz,
+                                                                index=tagged)
+    Sx_tagged   = density_matrix.calculate_expectation_of_1body(O=Sx,
+                                                                index=tagged)
+    Sy_tagged   = density_matrix.calculate_expectation_of_1body(O=Sy,
+                                                                index=tagged)
+    SzSz_tagged = density_matrix.calculate_expectation_of_2body(O1=Sz, 
+                                                                O2=Sz, 
+                                                                dist=1, 
+                                                                index=tagged)
+    SxSx_tagged = density_matrix.calculate_expectation_of_2body(O1=Sx, 
+                                                                O2=Sx, 
+                                                                dist=1, 
+                                                                index=tagged)
+    SySy_tagged = density_matrix.calculate_expectation_of_2body(O1=Sy, 
+                                                                O2=Sy, 
+                                                                dist=1, 
+                                                                index=tagged)
 
     total_energy = density_matrix.expectation_calc(hamiltonian_series[0])
     bath_energy  = density_matrix.expectation_calc(hamiltonian_series[1])
