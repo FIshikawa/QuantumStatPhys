@@ -182,6 +182,6 @@ if __name__ == '__main__':
                 hamiltonian_total
               )
 
-    end_time = "Experiment finish : " + \
-                datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S') + "\n" 
+    end_time = 'Experiment finish : ' + \
+                datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
     loger.log_write(end_time)
