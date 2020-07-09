@@ -114,13 +114,11 @@ if __name__ == '__main__':
     discrete = param_dict['discrete']
 
     # set external force 
-    external_force = lambda t : g_external*np.cos(np.pi*t)
+    external_force = lambda t : g_external * np.cos(np.pi*t)
 
     # set hamiltonian
+    hamiltonian_thermalize = Hamiltonian(N=N, tagged=tagged)
     if(relaxation):
-        hamiltonian_thermalize = Hamiltonian(N=N, tagged=tagged)
-    else:
-        hamiltonian_thermalize = Hamiltonian(N=N, tagged=tagged)
         hamiltonian_thermalize.add_H_1body(Sz, 
                                            coef=external_force(0), 
                                            position=tagged)
