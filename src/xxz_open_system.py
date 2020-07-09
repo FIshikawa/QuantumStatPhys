@@ -19,8 +19,8 @@ if __name__ == '__main__':
                                     '- J ( Sx Sx + Sy Sy + V Sz Sz) - g Sz')
     parser = argparse.ArgumentParser(description=experimental_condi[0])
 
-    parser.add_argument('--result_dir',required=True,action='store',type=str,
-                        help='Result directory',default='./test/')
+    parser.add_argument('--result_directory',required=True,action='store',
+                        type=str,help='Result directory',default='./test/')
     parser.add_argument('--N',required=True,action='store',type=int,
                         help='System size',default=3)
     parser.add_argument('--J',required=True,action='store',type=float,
@@ -72,24 +72,25 @@ if __name__ == '__main__':
 
     param_dict['dt'] = param_dict['t'] / float(param_dict['N_time'])
     param_dict['result_thermalize'] = \
-                       param_dict['result_dir'] + 'result_thermalize.dat' 
+          os.path.join(param_dict['result_directory'],'result_thermalize.dat') 
     param_dict['result_timedev'] = \
-                       param_dict['result_dir'] + 'result_timedev.dat' 
-    param_dict['result_band'] = param_dict['result_dir'] + 'result_band.dat' 
+          os.path.join(param_dict['result_directory'],'result_timedev.dat')
+    param_dict['result_band'] = \
+          os.path.join(param_dict['result_directory'],'result_band.dat') 
     param_dict['N_thermalize']= int( 1 / param_dict['T'] / param_dict['dt'])
 
     for flag in ['engine', 'relaxation', 'discrete', 'test_mode']:
         param_dict[flag] = \
                 True if param_dict[flag] in ['True','true'] else False
 
-   log_file = param_dict['result_dir'] + "condi.dat"
+    log_file = os.path.join(param_dict['result_directory'], 'condi.dat')
 
     if(os.path.exists(log_file)):
         os.remove(log_file) 
     loger = LogManager(log_file,stdout=True)
 
-    start_time = "Experiment start : " \
-                 + datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S') + "\n"
+    start_time = 'Experiment start : ' \
+                 + datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S') 
     loger.log_write(start_time)
 
     loger.log_write('[Experiment Conditions]')

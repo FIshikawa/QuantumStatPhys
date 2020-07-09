@@ -72,18 +72,18 @@ if __name__ == '__main__':
 
     param_dict['dt'] = param_dict['t'] / float(param_dict['N_time'])
     param_dict['result_thermalize'] = \
-                    os.path.join(param_dict['result_directory'],'result_thermalize.dat') 
+          os.path.join(param_dict['result_directory'],'result_thermalize.dat') 
     param_dict['result_timedev'] = \
-                    os.path.join(param_dict['result_directory'],'result_timedev.dat')
+          os.path.join(param_dict['result_directory'],'result_timedev.dat')
     param_dict['result_band'] = \
-                    os.path.join(param_dict['result_directory'],'result_band.dat') 
+          os.path.join(param_dict['result_directory'],'result_band.dat') 
     param_dict['N_thermalize']= int( 1 / param_dict['T'] / param_dict['dt'])
 
     for flag in ['engine', 'relaxation', 'discrete', 'test_mode']:
         param_dict[flag] = \
                 True if param_dict[flag] in ['True','true'] else False
 
-    log_file = param_dict['result_directory'] + "condi.dat"
+    log_file = os.path.join(param_dict['result_directory'], 'condi.dat')
 
     if(os.path.exists(log_file)):
         os.remove(log_file) 
