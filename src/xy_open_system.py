@@ -118,7 +118,7 @@ if __name__ == '__main__':
 
     # set hamiltonian
     hamiltonian_thermalize = Hamiltonian(N=N, tagged=tagged)
-    if(relaxation):
+    if relaxation:
         hamiltonian_thermalize.add_H_1body(Sz, 
                                            coef=external_force(0),
                                            position=tagged)
