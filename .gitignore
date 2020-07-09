@@ -138,3 +138,6 @@ parameters
 
 # notebook
 *.ipynb
+
+# swp
+*.swp
