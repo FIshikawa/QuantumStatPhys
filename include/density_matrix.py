@@ -13,7 +13,7 @@ class DensityMatrix:
         self.initialize(relaxation=relaxation)
 
     def initialize(self,relaxation=False):
-        if(not relaxation):
+        if(relaxation):
             density_matrix = np.identity(np.power(2,self.N),dtype=np.complex128)
         else:
             density_matrix_right = np.eye(np.power(2,self.tagged),dtype=np.complex128)
