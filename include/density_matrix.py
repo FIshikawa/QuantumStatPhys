@@ -3,14 +3,20 @@ import numpy as np
 from physical_operators import *
 
 class DensityMatrix:
-    def __init__(self, N, tagged=-1,relaxation=False,Sx_init=1.0):
+    def __init__(self, N, tagged=-1,relaxation=True,
+                  Sx_init=1.0, Sy_init=0.0):
         self.density_matrix = np.zeros((np.power(2,N),np.power(2,N)),
                                         dtype=np.complex128)
         self.tagged = tagged
+        if tagged < 0 and not relaxation : 
+            raise ValueError('relaxation must be true if tagged is not set')
         self.N = N
-        if(Sx_init > 1):
-            raise ValueError('Sx_init must be lower than 1')
+        Sz_init_square = 1 - (Sx_init ** 2 + Sy_init ** 2)
+        if Sz_init_square < 0:
+            raise ValueError('Sx_init ** 2 + Sy_init ** 2 must be lower than 1')
         self.Sx_init = np.float64(Sx_init)
+        self.Sy_init = np.float64(Sy_init)
+        self.Sz_init = np.float64(np.sqrt(Sz_init_square))
         self.initialize(relaxation=relaxation)
 
     def initialize(self,relaxation=False):
@@ -22,8 +28,11 @@ class DensityMatrix:
                                           dtype=np.complex128)
             density_left = np.eye(np.power(2,self.N-self.tagged-1),
                                          dtype=np.complex128)
+
             density_tagged = 0.5 * np.eye(2,dtype=np.complex128) \
-                                    + 0.5 * self.Sx_init * Sx
+                                    + 0.5 * self.Sx_init * Sx \
+                                    + 0.5 * self.Sy_init * Sy \
+                                    + 0.5 * self.Sz_init * Sz
 
             density_matrix = np.kron(density_tagged,density_right)
             density_matrix = np.kron(density_left,density_matrix)
@@ -115,6 +124,63 @@ class DensityMatrix:
             matrix_basis = np.reshape(matrix_basis,np.power(4,area_size))
             matrix_basis[i] = 0
         return reduced_density
+
+    def bath_density_matrix(self):
+        density_matrix = self.density_matrix.copy()
+        area_size = self.N - 1
+        left_size = area_size // 2
+        right_size = area_size - left_size
+        reduced_density = \
+                       np.zeros((np.power(2,area_size),np.power(2,area_size)),
+                                 dtype=np.complex128)
+        matrix_basis_left = np.zeros(np.power(4,left_size),dtype=np.complex128)
+        matrix_basis_right = np.zeros(np.power(4,right_size),dtype=np.complex128)
+        tagged_reduction = np.eye(np.power(2,1),dtype=np.complex128)
+        for i in range(len(matrix_basis_left)):
+            for j in range(len(matrix_basis_right)):
+                matrix_basis_left[i] = 1
+                matrix_basis_right[j] = 1
+
+                matrix_basis_left = np.reshape(matrix_basis_left,
+                                    (np.power(2,left_size),np.power(2,left_size)))
+                matrix_basis_right = np.reshape(matrix_basis_right,
+                                    (np.power(2,right_size),np.power(2,right_size)))
+
+                total_reduce_basis = np.kron(matrix_basis_left,
+                                        np.kron(tagged_reduction,matrix_basis_right))
+                reduced_density += \
+                        np.trace(np.dot(density_matrix,total_reduce_basis)) \
+                            * np.kron(matrix_basis_left,matrix_basis_right)
+
+                matrix_basis_left = np.reshape(matrix_basis_left,
+                                                np.power(4,left_size))
+                matrix_basis_right = np.reshape(matrix_basis_right,
+                                                np.power(4,right_size))
+
+                matrix_basis_left[i] = 0
+                matrix_basis_right[j] = 0
+
+        return reduced_density
+
+    def bath_entropy(self):
+        bath_density = self.bath_density_matrix()
+        D = np.linalg.eigvalsh(bath_density)
+        entanglement_entropy = 0
+        for eigenvalue in D:
+            if(eigenvalue > 0):
+                entanglement_entropy -= eigenvalue * np.log(eigenvalue)
+                if(np.isnan(entanglement_entropy)):
+                    print('{} make nan'.format(eigenvalue))
+                    entanglement_entropy = 0
+            else:
+                print('{} is not positive eigenvalu'.format(eigenvalue))
+        return entanglement_entropy
+
+    def system_density_matrix(self):
+        return self.reduced_density_matrix(left=self.tagged, right=self.tagged)
+
+    def system_entropy(self):
+        return self.entanglement_entropy(left=self.tagged, right=self.tagged)
 
     def entanglement_entropy(self, left, right):
         reduced_density = self.reduced_density_matrix(left, right)
