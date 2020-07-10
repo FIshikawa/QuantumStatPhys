@@ -13,13 +13,13 @@ class DensityMatrix:
         self.N = N
         Sz_init_square = 1 - (Sx_init ** 2 + Sy_init ** 2)
         if Sz_init_square < 0:
-            raise ValueError('Sx_init ** 2 + Sy_init ** 2 must be lower than 1')
+            raise ValueError('Sx_init **2 + Sy_init **2 must be lower than 1')
         self.Sx_init = np.float64(Sx_init)
         self.Sy_init = np.float64(Sy_init)
         self.Sz_init = np.float64(np.sqrt(Sz_init_square))
         self.initialize(relaxation=relaxation)
 
-    def initialize(self,relaxation=False):
+    def initialize(self,relaxation):
         if(relaxation):
             density_matrix = np.identity(np.power(2,self.N),
                                          dtype=np.complex128)
@@ -123,7 +123,7 @@ class DensityMatrix:
                         * matrix_basis
             matrix_basis = np.reshape(matrix_basis,np.power(4,area_size))
             matrix_basis[i] = 0
-        return reduced_density
+        return reduced_density / np.trace(reduced_density)
 
     def bath_density_matrix(self):
         density_matrix = self.density_matrix.copy()
@@ -134,7 +134,8 @@ class DensityMatrix:
                        np.zeros((np.power(2,area_size),np.power(2,area_size)),
                                  dtype=np.complex128)
         matrix_basis_left = np.zeros(np.power(4,left_size),dtype=np.complex128)
-        matrix_basis_right = np.zeros(np.power(4,right_size),dtype=np.complex128)
+        matrix_basis_right = \
+                        np.zeros(np.power(4,right_size),dtype=np.complex128)
         tagged_reduction = np.eye(np.power(2,1),dtype=np.complex128)
         for i in range(len(matrix_basis_left)):
             for j in range(len(matrix_basis_right)):
@@ -142,12 +143,12 @@ class DensityMatrix:
                 matrix_basis_right[j] = 1
 
                 matrix_basis_left = np.reshape(matrix_basis_left,
-                                    (np.power(2,left_size),np.power(2,left_size)))
+                                 (np.power(2,left_size),np.power(2,left_size)))
                 matrix_basis_right = np.reshape(matrix_basis_right,
-                                    (np.power(2,right_size),np.power(2,right_size)))
+                               (np.power(2,right_size),np.power(2,right_size)))
 
                 total_reduce_basis = np.kron(matrix_basis_left,
-                                        np.kron(tagged_reduction,matrix_basis_right))
+                                np.kron(tagged_reduction,matrix_basis_right))
                 reduced_density += \
                         np.trace(np.dot(density_matrix,total_reduce_basis)) \
                             * np.kron(matrix_basis_left,matrix_basis_right)
@@ -156,11 +157,9 @@ class DensityMatrix:
                                                 np.power(4,left_size))
                 matrix_basis_right = np.reshape(matrix_basis_right,
                                                 np.power(4,right_size))
-
                 matrix_basis_left[i] = 0
                 matrix_basis_right[j] = 0
-
-        return reduced_density
+        return reduced_density / np.trace(reduced_density)
 
     def bath_entropy(self):
         bath_density = self.bath_density_matrix()
