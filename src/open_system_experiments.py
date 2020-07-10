@@ -54,14 +54,14 @@ def physical_value_calc(t,file_name, density_matrix, hamiltonian_series):
     system_energy  = density_matrix.expectation_calc(hamiltonian_series[2](t))
     interaction_energy = total_energy - (bath_energy + system_energy)
 
-    entanglement_entropy = \
+    system_entropy = \
             density_matrix.entanglement_entropy(left=tagged,right=tagged)
 
     result_list = [t, Sz_tagged, Sz_ave, Sx_tagged, Sx_ave, Sy_tagged, Sy_ave, 
                    SzSz_tagged, SzSz_ave,\
-                   SxSx_tagged, SxSx_ave, SySy_tagged, SySy_ave, 
+                   SxSx_tagged, SxSx_ave, SySy_tagged, SySy_ave,\
                    total_energy, bath_energy, system_energy,\
-                   interaction_energy, entanglement_entropy]
+                   interaction_energy, system_entropy]
 
     f = open(file_name, "a")
     for value in result_list:
@@ -131,7 +131,7 @@ def experiment(param_dict,loger,rho,hamiltonian_thermalize,hamiltonian_total):
                   'SzSz_tagged SzSz_ave SxSx_tagged SxSx_ave ' \
                   'SySy_tagged SySy_ave '\
                   'total_energy bath_energy system_energy interaction_energy'\
-                  ' entanglement_entropy\n'
+                  ' system_entropy\n'
 
     for file_name in [result_thermalize, result_timedev,result_band]:
         f = open(file_name, 'w')
